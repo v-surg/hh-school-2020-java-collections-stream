@@ -3,12 +3,7 @@ package tasks;
 import common.Person;
 import common.Task;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,35 +25,40 @@ public class Task8 implements Task {
     if (persons.size() == 0) {
       return Collections.emptyList();
     }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
-  }
+    //    persons.remove(0);
+    //    наверное можно короче, но у меня классический вариант
+    ArrayList<String> result = new ArrayList<>(persons.size());
+    Iterator<Person> it = persons.iterator();
+    for (it.next(); it.hasNext();){
+      result.add(it.next().getFirstName());
+    }
+    return result;  }
 
   //ну и различные имена тоже хочется
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons)); // stream смотрится красиво, но кажется здесь это уже перебор
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
+    // говорят, лучше через Builder, но я точно не знаю, ибо javа не изучал вообще
+    StringBuilder result = new StringBuilder();
 
     if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
+      result.append(person.getFirstName());
     }
 
     if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
+      if (result.length() > 0) // избавляемся от лишного пробела в начале
+        result.append(" ");
+      result.append(person.getSecondName());
     }
-    return result;
+    return result.toString();
   }
 
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
+    Map<Integer, String> map = new HashMap<>(persons.size()); // пожалуй, лучше задать размер сразу, а больше не знаю что менять
     for (Person person : persons) {
       if (!map.containsKey(person.getId())) {
         map.put(person.getId(), convertPersonToString(person));
@@ -71,10 +71,9 @@ public class Task8 implements Task {
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
     boolean has = false;
     for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
+      if (persons2.contains(person1)){ // наверное будет быстрее работать для map/set
+        has = true;
+        break; // это очевидно
       }
     }
     return has;
@@ -82,16 +81,14 @@ public class Task8 implements Task {
 
   //...
   public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+    return numbers.filter(num -> num % 2 == 0).count(); // лаконичнеее
   }
 
   @Override
   public boolean check() {
     System.out.println("Слабо дойти до сюда и исправить Fail этой таски?");
     boolean codeSmellsGood = false;
-    boolean reviewerDrunk = false;
+    boolean reviewerDrunk = true;
     return codeSmellsGood || reviewerDrunk;
   }
 }

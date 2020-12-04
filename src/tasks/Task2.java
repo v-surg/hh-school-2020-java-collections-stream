@@ -4,10 +4,7 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /*
@@ -22,7 +19,41 @@ public class Task2 implements Task {
   private static List<Person> combineAndSortWithLimit(Collection<Person> persons1,
                                                       Collection<Person> persons2,
                                                       int limit) {
-    return new ArrayList<>();
+    class PersonAgreaterB implements Comparator<Person> {
+      @Override
+      public int compare(Person A, Person B){
+        return -1 * A.getCreatedAt().compareTo(B.getCreatedAt());
+      }
+    }
+
+    class PersonAlessB implements Comparator<Person>{
+      @Override
+      public int compare(Person A, Person B){
+        return A.getCreatedAt().compareTo(B.getCreatedAt());
+      }
+    }
+
+    PersonAgreaterB comparator = new PersonAgreaterB();
+    PriorityQueue<Person> pq = new PriorityQueue<Person>(limit, comparator);
+
+    List<Collection<Person>> colls = List.of(persons1, persons2);
+
+    for (Collection<Person> coll : colls) {
+      for (Person p : coll) {
+        if (pq.size() < limit) {
+          pq.add(p);
+        }
+        else if (comparator.compare(p, pq.peek()) > 0) {
+          pq.poll();
+          pq.add(p);
+        }
+      }
+    }
+
+    ArrayList<Person> result = new ArrayList<>(pq);
+    result.sort(new PersonAlessB());
+
+    return result;
   }
 
   @Override
