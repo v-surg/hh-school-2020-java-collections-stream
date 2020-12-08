@@ -25,14 +25,7 @@ public class Task8 implements Task {
     if (persons.size() == 0) {
       return Collections.emptyList();
     }
-    //    persons.remove(0);
-    //    наверное можно короче, но у меня классический вариант
-    ArrayList<String> result = new ArrayList<>(persons.size());
-    Iterator<Person> it = persons.iterator();
-    for (it.next(); it.hasNext();){
-      result.add(it.next().getFirstName());
-    }
-    return result;  }
+    return persons.stream().skip(1).map(Person::getFirstName).collect(Collectors.toCollection(ArrayList::new));  }
 
   //ну и различные имена тоже хочется
   public Set<String> getDifferentNames(List<Person> persons) {
@@ -41,19 +34,7 @@ public class Task8 implements Task {
 
   //Для фронтов выдадим полное имя, а то сами не могут
   public String convertPersonToString(Person person) {
-    // говорят, лучше через Builder, но я точно не знаю, ибо javа не изучал вообще
-    StringBuilder result = new StringBuilder();
-
-    if (person.getFirstName() != null) {
-      result.append(person.getFirstName());
-    }
-
-    if (person.getSecondName() != null) {
-      if (result.length() > 0) // избавляемся от лишного пробела в начале
-        result.append(" ");
-      result.append(person.getSecondName());
-    }
-    return result.toString();
+    return Stream.of(person.getFirstName(), person.getSecondName()).filter(Objects::nonNull).collect(Collectors.joining());
   }
 
   // словарь id персоны -> ее имя
@@ -69,14 +50,7 @@ public class Task8 implements Task {
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      if (persons2.contains(person1)){ // наверное будет быстрее работать для map/set
-        has = true;
-        break; // это очевидно
-      }
-    }
-    return has;
+    return persons1.stream().anyMatch(persons2::contains);
   }
 
   //...

@@ -5,6 +5,7 @@ import common.PersonService;
 import common.Task;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /*
@@ -18,15 +19,9 @@ public class Task1 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<Person> findOrderedPersons(List<Integer> personIds) {
-    Set<Person> persons = PersonService.findPersons(personIds); // O(???)
-    Map<Integer, Person> idToPerson = new HashMap<Integer, Person>();
-    for (Person p : persons)
-      idToPerson.put(p.getId(), p); // O(persons.size())
-    List<Person> result = new ArrayList<Person>(persons.size());
-
-    for (Integer id : personIds) // O(persons.size())
-      result.add(idToPerson.get(id)); // O(const)
-    return result; // O(persons.size())
+    Set<Person> persons = PersonService.findPersons(personIds);
+    Map<Integer, Person> idToPerson = persons.stream().collect(Collectors.toMap(Person::getId, Function.identity()));
+    return personIds.stream().map((id)->idToPerson.get(id)).collect(Collectors.toList());
   }
 
   @Override
